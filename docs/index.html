@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Budakeszi Revenue Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <style>
+        :root {
+            --bg: #f6f7f4;
+            --card: #ffffff;
+            --text: #132238;
+            --muted: #4f5f74;
+            --line1: #005f73;
+            --line2: #ee9b00;
+            --border: #d7dde5;
+        }
+        body { margin: 0; font-family: "Avenir Next", "Segoe UI", sans-serif; background: radial-gradient(circle at 10% 10%, #e8efe6, var(--bg) 40%); color: var(--text); }
+        .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 36px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; box-shadow: 0 8px 22px rgba(8, 28, 44, 0.06); }
+        h1 { margin: 0 0 10px; font-size: 28px; letter-spacing: 0.2px; }
+        p { margin: 0; color: var(--muted); }
+        .controls { margin: 14px 0 18px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+        label { font-weight: 600; }
+        input[type=number] { width: 120px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 16px; }
+        .meta { color: var(--muted); font-size: 14px; }
+        #chart { height: 500px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 15px; }
+        th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+        th:first-child, td:first-child { text-align: left; }
+        th { background: #f7fafc; }
+        @media (max-width: 700px) { #chart { height: 420px; } h1 { font-size: 23px; } }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="card">
+            <h1>Budakeszi heti atlagos bevetel</h1>
+            <p>Kulon vonalak evek szerint, nyitvatartasi orak alapjan.</p>
+            <div class="controls">
+                <label for="unitInput">Alap egysegar (HUF)</label>
+                <input id="unitInput" type="number" min="0" step="1" value="2000" />
+                <div class="meta" id="hourlyBaseText"></div>
+            </div>
+            <div id="chart"></div>
+            <table id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Ev</th>
+                        <th>Brutto bevetel (HUF)</th>
+                        <th>Netto bevetel, 27% AFA nelkul (HUF)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const DATA = {"ratio_percent": 100.0, "default_unit_revenue_huf": 2000, "weekly": [{"year": 2024, "iso_week": 1, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 9, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 10, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 11, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 12, "weekly_avg_capacity_ratio": 0.014732142857142857}, {"year": 2024, "iso_week": 13, "weekly_avg_capacity_ratio": 0.2758928571428571}, {"year": 2024, "iso_week": 14, "weekly_avg_capacity_ratio": 0.42008928571428567}, {"year": 2024, "iso_week": 15, "weekly_avg_capacity_ratio": 0.4178571428571428}, {"year": 2024, "iso_week": 16, "weekly_avg_capacity_ratio": 0.044196428571428574}, {"year": 2024, "iso_week": 17, "weekly_avg_capacity_ratio": 0.1575892857142857}, {"year": 2024, "iso_week": 18, "weekly_avg_capacity_ratio": 0.5397321428571429}, {"year": 2024, "iso_week": 19, "weekly_avg_capacity_ratio": 0.39732142857142855}, {"year": 2024, "iso_week": 20, "weekly_avg_capacity_ratio": 0.3491071428571429}, {"year": 2024, "iso_week": 21, "weekly_avg_capacity_ratio": 0.49642857142857144}, {"year": 2024, "iso_week": 22, "weekly_avg_capacity_ratio": 0.4629464285714286}, {"year": 2024, "iso_week": 23, "weekly_avg_capacity_ratio": 0.4245535714285714}, {"year": 2024, "iso_week": 24, "weekly_avg_capacity_ratio": 0.40714285714285714}, {"year": 2024, "iso_week": 25, "weekly_avg_capacity_ratio": 0.33303571428571427}, {"year": 2024, "iso_week": 26, "weekly_avg_capacity_ratio": 0.19910714285714287}, {"year": 2024, "iso_week": 27, "weekly_avg_capacity_ratio": 0.34017857142857144}, {"year": 2024, "iso_week": 28, "weekly_avg_capacity_ratio": 0.05669642857142857}, {"year": 2024, "iso_week": 29, "weekly_avg_capacity_ratio": 0.18348214285714287}, {"year": 2024, "iso_week": 30, "weekly_avg_capacity_ratio": 0.20714285714285713}, {"year": 2024, "iso_week": 31, "weekly_avg_capacity_ratio": 0.4276785714285714}, {"year": 2024, "iso_week": 32, "weekly_avg_capacity_ratio": 0.23035714285714287}, {"year": 2024, "iso_week": 33, "weekly_avg_capacity_ratio": 0.033928571428571426}, {"year": 2024, "iso_week": 34, "weekly_avg_capacity_ratio": 0.18482142857142855}, {"year": 2024, "iso_week": 35, "weekly_avg_capacity_ratio": 0.0830357142857143}, {"year": 2024, "iso_week": 36, "weekly_avg_capacity_ratio": 0.26919642857142856}, {"year": 2024, "iso_week": 37, "weekly_avg_capacity_ratio": 0.10580357142857143}, {"year": 2024, "iso_week": 38, "weekly_avg_capacity_ratio": 0.3566964285714286}, {"year": 2024, "iso_week": 39, "weekly_avg_capacity_ratio": 0.16160714285714287}, {"year": 2024, "iso_week": 40, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 41, "weekly_avg_capacity_ratio": 0.06830357142857144}, {"year": 2024, "iso_week": 42, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 43, "weekly_avg_capacity_ratio": 0.046875}, {"year": 2024, "iso_week": 44, "weekly_avg_capacity_ratio": 0.018303571428571426}, {"year": 2024, "iso_week": 45, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 46, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 47, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 48, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 49, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 50, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 51, "weekly_avg_capacity_ratio": 0.0}, {"year": 2024, "iso_week": 52, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 1, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 2, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 3, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 4, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 5, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 6, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 7, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 8, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 9, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 10, "weekly_avg_capacity_ratio": 0.04151785714285715}, {"year": 2025, "iso_week": 11, "weekly_avg_capacity_ratio": 0.009821428571428573}, {"year": 2025, "iso_week": 12, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 13, "weekly_avg_capacity_ratio": 0.003125}, {"year": 2025, "iso_week": 14, "weekly_avg_capacity_ratio": 0.049999999999999996}, {"year": 2025, "iso_week": 15, "weekly_avg_capacity_ratio": 0.11026785714285714}, {"year": 2025, "iso_week": 16, "weekly_avg_capacity_ratio": 0.28348214285714285}, {"year": 2025, "iso_week": 17, "weekly_avg_capacity_ratio": 0.271875}, {"year": 2025, "iso_week": 18, "weekly_avg_capacity_ratio": 0.5486607142857143}, {"year": 2025, "iso_week": 19, "weekly_avg_capacity_ratio": 0.028125}, {"year": 2025, "iso_week": 20, "weekly_avg_capacity_ratio": 0.040625}, {"year": 2025, "iso_week": 21, "weekly_avg_capacity_ratio": 0.08705357142857142}, {"year": 2025, "iso_week": 22, "weekly_avg_capacity_ratio": 0.30312500000000003}, {"year": 2025, "iso_week": 23, "weekly_avg_capacity_ratio": 0.2245535714285714}, {"year": 2025, "iso_week": 24, "weekly_avg_capacity_ratio": 0.46517857142857144}, {"year": 2025, "iso_week": 25, "weekly_avg_capacity_ratio": 0.3308035714285714}, {"year": 2025, "iso_week": 26, "weekly_avg_capacity_ratio": 0.17008928571428572}, {"year": 2025, "iso_week": 27, "weekly_avg_capacity_ratio": 0.09821428571428571}, {"year": 2025, "iso_week": 28, "weekly_avg_capacity_ratio": 0.2982142857142857}, {"year": 2025, "iso_week": 29, "weekly_avg_capacity_ratio": 0.24910714285714283}, {"year": 2025, "iso_week": 30, "weekly_avg_capacity_ratio": 0.18571428571428572}, {"year": 2025, "iso_week": 31, "weekly_avg_capacity_ratio": 0.4741071428571429}, {"year": 2025, "iso_week": 32, "weekly_avg_capacity_ratio": 0.221875}, {"year": 2025, "iso_week": 33, "weekly_avg_capacity_ratio": 0.10982142857142858}, {"year": 2025, "iso_week": 34, "weekly_avg_capacity_ratio": 0.409375}, {"year": 2025, "iso_week": 35, "weekly_avg_capacity_ratio": 0.2915178571428571}, {"year": 2025, "iso_week": 36, "weekly_avg_capacity_ratio": 0.45491071428571433}, {"year": 2025, "iso_week": 37, "weekly_avg_capacity_ratio": 0.4004464285714286}, {"year": 2025, "iso_week": 38, "weekly_avg_capacity_ratio": 0.3209821428571429}, {"year": 2025, "iso_week": 39, "weekly_avg_capacity_ratio": 0.13169642857142858}, {"year": 2025, "iso_week": 40, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 41, "weekly_avg_capacity_ratio": 0.016071428571428573}, {"year": 2025, "iso_week": 42, "weekly_avg_capacity_ratio": 0.0017857142857142859}, {"year": 2025, "iso_week": 43, "weekly_avg_capacity_ratio": 0.06607142857142857}, {"year": 2025, "iso_week": 44, "weekly_avg_capacity_ratio": 0.08973214285714286}, {"year": 2025, "iso_week": 45, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 46, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 47, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 48, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 49, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 50, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 51, "weekly_avg_capacity_ratio": 0.0}, {"year": 2025, "iso_week": 52, "weekly_avg_capacity_ratio": 0.0}], "yearly": [{"year": 2024, "yearly_capacity_ratio_sum": 431.975}, {"year": 2025, "yearly_capacity_ratio_sum": 380.125}]};
+
+        function formatHUF(v) {
+            return new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 0 }).format(Math.round(v));
+        }
+
+        function computeHourlyBase(unitValue) {
+            return Math.max(0, Math.floor(unitValue)) * 100;
+        }
+
+        function render() {
+            const unitInput = document.getElementById('unitInput');
+            const unitValue = Number(unitInput.value || 0);
+            const hourlyBase = computeHourlyBase(unitValue);
+            const ratio = Math.max(0, Number(DATA.ratio_percent)) / 100;
+
+            document.getElementById('hourlyBaseText').textContent =
+                `100% aranynal orankenti brutto: ${formatHUF(hourlyBase)} HUF`;
+
+            const weeklyByYear = new Map();
+            for (const row of DATA.weekly) {
+                const revenue = row.weekly_avg_capacity_ratio * hourlyBase * ratio;
+                if (!weeklyByYear.has(row.year)) weeklyByYear.set(row.year, { x: [], y: [] });
+                weeklyByYear.get(row.year).x.push(row.iso_week);
+                weeklyByYear.get(row.year).y.push(revenue);
+            }
+
+            const traces = Array.from(weeklyByYear.entries()).map(([year, vals], idx) => {
+                const colors = ['#005f73', '#ee9b00', '#ca6702', '#0a9396'];
+                return {
+                    x: vals.x,
+                    y: vals.y,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: `${year} heti atlagos brutto`,
+                    line: { width: 2.5, color: colors[idx % colors.length] },
+                    marker: { size: 5 },
+                };
+            });
+
+            Plotly.react('chart', traces, {
+                title: 'Heti atlagos brutto bevetel evek szerint',
+                template: 'plotly_white',
+                hovermode: 'x unified',
+                xaxis: { title: 'ISO het', dtick: 2 },
+                yaxis: { title: 'Heti atlagos brutto bevetel (HUF)' },
+                legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, x: 0 },
+                margin: { l: 60, r: 20, t: 60, b: 50 },
+            }, { responsive: true });
+
+            const tbody = document.querySelector('#summaryTable tbody');
+            tbody.innerHTML = '';
+            for (const row of DATA.yearly) {
+                const gross = row.yearly_capacity_ratio_sum * hourlyBase * ratio;
+                const net = gross / 1.27;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.year}</td>
+                    <td>${formatHUF(gross)}</td>
+                    <td>${formatHUF(net)}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        document.getElementById('unitInput').addEventListener('input', render);
+        render();
+    </script>
+</body>
+</html>
