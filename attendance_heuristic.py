@@ -228,6 +228,7 @@ def create_dashboard_html(
         .agg(weekly_avg_capacity_ratio=("capacity_ratio", "mean"))
         .sort_values(["year", "iso_week"])
     )
+    weekly = weekly[weekly["weekly_avg_capacity_ratio"] > 0].copy()
     yearly = (
         open_df.groupby("year", as_index=False)
         .agg(yearly_capacity_ratio_sum=("capacity_ratio", "sum"))
@@ -279,10 +280,10 @@ def create_dashboard_html(
 <body>
     <div class=\"wrap\">
         <div class=\"card\">
-            <h1>Budakeszi heti atlagos bevetel</h1>
-            <p>Kulon vonalak evek szerint, nyitvatartasi orak alapjan.</p>
+            <h1>Budakeszi heti átlagos bevétel</h1>
+            <p>Külön vonalak évek szerint, nyitvatartási órák alapján.</p>
             <div class=\"controls\">
-                <label for=\"unitInput\">Alap egysegar (HUF)</label>
+                <label for=\"unitInput\">Alap egységár (HUF)</label>
                 <input id=\"unitInput\" type=\"number\" min=\"0\" step=\"1\" value=\"{int(default_unit_revenue_huf)}\" />
                 <div class=\"meta\" id=\"hourlyBaseText\"></div>
             </div>
@@ -290,9 +291,9 @@ def create_dashboard_html(
             <table id=\"summaryTable\">
                 <thead>
                     <tr>
-                        <th>Ev</th>
-                        <th>Brutto bevetel (HUF)</th>
-                        <th>Netto bevetel, 27% AFA nelkul (HUF)</th>
+                        <th>Év</th>
+                        <th>Bruttó bevétel (HUF)</th>
+                        <th>Nettó bevétel, 27% ÁFA nélkül (HUF)</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -302,6 +303,11 @@ def create_dashboard_html(
 
     <script>
         const DATA = {payload_json};
+        const MONTH_TICKS = [1, 5, 9, 14, 18, 22, 27, 31, 36, 40, 44, 49];
+        const MONTH_NAMES_HU = [
+            'jan', 'febr', 'márc', 'ápr', 'máj', 'jún',
+            'júl', 'aug', 'szept', 'okt', 'nov', 'dec'
+        ];
 
         function formatHUF(v) {{
             return new Intl.NumberFormat('hu-HU', {{ maximumFractionDigits: 0 }}).format(Math.round(v));
@@ -318,7 +324,7 @@ def create_dashboard_html(
             const ratio = Math.max(0, Number(DATA.ratio_percent)) / 100;
 
             document.getElementById('hourlyBaseText').textContent =
-                `100% aranynal orankenti brutto: ${{formatHUF(hourlyBase)}} HUF`;
+                `100% aránynál óránkénti bruttó: ${{formatHUF(hourlyBase)}} HUF`;
 
             const weeklyByYear = new Map();
             for (const row of DATA.weekly) {{
@@ -335,18 +341,23 @@ def create_dashboard_html(
                     y: vals.y,
                     type: 'scatter',
                     mode: 'lines+markers',
-                    name: `${{year}} heti atlagos brutto`,
+                    name: `${{year}} heti átlagos bruttó`,
                     line: {{ width: 2.5, color: colors[idx % colors.length] }},
                     marker: {{ size: 5 }},
                 }};
             }});
 
             Plotly.react('chart', traces, {{
-                title: 'Heti atlagos brutto bevetel evek szerint',
+                title: 'Heti átlagos bruttó bevétel évek szerint',
                 template: 'plotly_white',
                 hovermode: 'x unified',
-                xaxis: {{ title: 'ISO het', dtick: 2 }},
-                yaxis: {{ title: 'Heti atlagos brutto bevetel (HUF)' }},
+                xaxis: {{
+                    title: 'Hónap',
+                    tickmode: 'array',
+                    tickvals: MONTH_TICKS,
+                    ticktext: MONTH_NAMES_HU,
+                }},
+                yaxis: {{ title: 'Heti átlagos bruttó bevétel (HUF)' }},
                 legend: {{ orientation: 'h', yanchor: 'bottom', y: 1.02, x: 0 }},
                 margin: {{ l: 60, r: 20, t: 60, b: 50 }},
             }}, {{ responsive: true }});
