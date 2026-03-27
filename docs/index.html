@@ -67,8 +67,8 @@
             </table>
             <div class="method">
                 <h2>Módszertan és adatforrások</h2>
-                <p>A becslés óránkénti időjárási és naptári adatokon alapul. Minden nyitvatartási órára négy független szorzótag szorzataként számolunk <strong>kapacitásarányt</strong> (0–1), mellyel az alap óradíjat megszorozzuk:</p>
-                <div class="formula">Bevétel = Alap óradíj &times; M<sub>naptár</sub> &times; M<sub>hőmérséklet</sub> &times; M<sub>csapadék</sub> &times; M<sub>front</sub></div>
+                <p>A becslés óránkénti időjárási és naptári adatokon alapul. Minden nyitvatartási órára négy független szorzótag szorzataként számolunk <strong>kapacitásarányt</strong> (0–1), mellyel a max. óradíjat megszorozzuk:</p>
+                <div class="formula">Bevétel = Max óradíj (${formatHUF(hourlyBase)}) &times; M<sub>naptár</sub> &times; M<sub>hőmérséklet</sub> &times; M<sub>csapadék</sub> &times; M<sub>front</sub></div>
                 <details>
                     <summary>1. M<sub>naptár</sub> &mdash; Nyitvatartási és naptári szorzó</summary>
                     <ul>
