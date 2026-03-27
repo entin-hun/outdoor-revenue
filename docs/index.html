@@ -49,6 +49,22 @@
         <div class="card">
             <h1>Budakeszi outdoor VR és RC park bevétel kalkulátor</h1>
             <p>Az elmúlt 2 éves időjárási adatok alapján.</p>
+            <div class="controls">
+                <label for="unitInput">10 perc / játékos</label>
+                <input id="unitInput" type="number" min="0" step="1" value="2000" />
+                <div class="meta" id="hourlyBaseText"></div>
+            </div>
+            <div id="chart"></div>
+            <table id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Év</th>
+                        <th>Bruttó bevétel (HUF)</th>
+                        <th>Nettó bevétel, 27% ÁFA nélkül (HUF)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
             <div class="method">
                 <h2>Módszertan és adatforrások</h2>
                 <p>A becslés óránkénti időjárási és naptári adatokon alapul. Minden nyitvatartási órára négy független szorzótag szorzataként számolunk <strong>kapacitásarányt</strong> (0–1), mellyel az alap óradíjat megszorozzuk:</p>
@@ -93,9 +109,9 @@
                 <p style="margin-top:12px;"><strong>Adatforrások (ellenőrizhető):</strong></p>
                 <ul>
                     <li>
-                        Órás időjárási archív (hőmérséklet, csapadék, légnyomás) &mdash;
-                        <a href="https://open-meteo.com/en/docs/historical-weather-api" target="_blank" rel="noopener noreferrer">Open-Meteo Historical Weather API</a>
-                        &middot; <a href="https://archive-api.open-meteo.com/v1/archive?latitude=47.4991&longitude=18.9177&start_date=2024-06-01&end_date=2024-06-03&hourly=temperature_2m,precipitation,surface_pressure&timezone=Europe%2FBudapest" target="_blank" rel="noopener noreferrer">Élő API példa (2024. június)</a>
+                        Időjárás (órás archív):
+                        <a href="https://open-meteo.com/en/docs/historical-weather-api" target="_blank" rel="noopener noreferrer">Historical Weather API docs</a>
+                        (paraméterek: <code>temperature_2m</code>, <code>precipitation</code>, <code>surface_pressure</code>).
                     </li>
                     <li>
                         Magyar ünnepnapok &mdash;
@@ -104,22 +120,6 @@
                     </li>
                 </ul>
             </div>
-            <div class="controls">
-                <label for="unitInput">Bruttó Ft/10 perc/fő</label>
-                <input id="unitInput" type="number" min="0" step="1" value="2000" />
-                <div class="meta" id="hourlyBaseText"></div>
-            </div>
-            <div id="chart"></div>
-            <table id="summaryTable">
-                <thead>
-                    <tr>
-                        <th>Év</th>
-                        <th>Bruttó bevétel (HUF)</th>
-                        <th>Nettó bevétel, 27% ÁFA nélkül (HUF)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
         </div>
     </div>
 
@@ -146,7 +146,7 @@
             const ratio = Math.max(0, Number(DATA.ratio_percent)) / 100;
 
             document.getElementById('hourlyBaseText').textContent =
-                `100% kihasználtságnál óránkénti bruttó: ${formatHUF(hourlyBase)} HUF`;
+                `Ft (ÁFÁval), ami 100% kihasználtságnál óránkénti bruttó: ${formatHUF(hourlyBase)} HUF`;
 
             const weeklyByYear = new Map();
             for (const row of DATA.weekly) {
