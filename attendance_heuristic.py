@@ -266,6 +266,13 @@ def create_dashboard_html(
         h1 {{ margin: 0 0 10px; font-size: 28px; letter-spacing: 0.2px; }}
         p {{ margin: 0; color: var(--muted); }}
         .controls {{ margin: 14px 0 18px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }}
+        .method {{ margin-top: 12px; margin-bottom: 14px; padding: 12px; background: #f8fbff; border: 1px solid var(--border); border-radius: 10px; }}
+        .method h2 {{ margin: 0 0 8px; font-size: 18px; }}
+        .method p {{ margin: 0 0 8px; }}
+        .method ul {{ margin: 0; padding-left: 18px; color: var(--text); }}
+        .method li {{ margin-bottom: 6px; }}
+        .method a {{ color: #005f73; text-decoration: none; }}
+        .method a:hover {{ text-decoration: underline; }}
         label {{ font-weight: 600; }}
         input[type=number] {{ width: 120px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 16px; }}
         .meta {{ color: var(--muted); font-size: 14px; }}
@@ -282,6 +289,31 @@ def create_dashboard_html(
         <div class=\"card\">
             <h1>Budakeszi heti átlagos bevétel</h1>
             <p>Külön vonalak évek szerint, nyitvatartási órák alapján.</p>
+            <div class=\"method\">
+                <h2>Módszertan és adatforrások</h2>
+                <p>
+                    A becslés órás időjárási és naptári adatokból készül. Minden órára egy kapacitásarányt számolunk
+                    (0 és 1 között), majd ezt szorozzuk az alap órás bruttó bevétellel.
+                    A kapacitásarány elemei: naptár (hétköznap/hétvége/ünnepnap + nyitvatartás),
+                    hőmérséklet, csapadék és légnyomás-front hatás.
+                </p>
+                <ul>
+                    <li>
+                        Időjárás (órás archív):
+                        <a href=\"https://archive-api.open-meteo.com/v1/archive\" target=\"_blank\" rel=\"noopener noreferrer\">Open-Meteo Archive API</a>
+                        (paraméterek: <code>temperature_2m</code>, <code>precipitation</code>, <code>surface_pressure</code>).
+                    </li>
+                    <li>
+                        Open-Meteo dokumentáció:
+                        <a href=\"https://open-meteo.com/en/docs/historical-weather-api\" target=\"_blank\" rel=\"noopener noreferrer\">Historical Weather API docs</a>.
+                    </li>
+                    <li>
+                        Magyar ünnepnapok:
+                        <a href=\"https://pypi.org/project/holidays/\" target=\"_blank\" rel=\"noopener noreferrer\">python-holidays csomag</a>
+                        (HU országkóddal).
+                    </li>
+                </ul>
+            </div>
             <div class=\"controls\">
                 <label for=\"unitInput\">Alap egységár (HUF)</label>
                 <input id=\"unitInput\" type=\"number\" min=\"0\" step=\"1\" value=\"{int(default_unit_revenue_huf)}\" />
