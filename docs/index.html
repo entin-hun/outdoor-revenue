@@ -42,8 +42,8 @@
 <body>
     <div class="wrap">
         <div class="card">
-            <h1>Budakeszi heti átlagos bevétel</h1>
-            <p>Külön vonalak évek szerint, nyitvatartási órák alapján.</p>
+            <h1>Budakeszi outdoor VR és RC park bevétel kalkulátor</h1>
+            <p>Az elmúlt 2 éves időjárási adatok alapján.</p>
             <div class="method">
                 <h2>Módszertan és adatforrások</h2>
                 <p>
@@ -70,7 +70,7 @@
                 </ul>
             </div>
             <div class="controls">
-                <label for="unitInput">Alap egységár (HUF)</label>
+                <label for="unitInput">Bruttó Ft/10 perc/fő</label>
                 <input id="unitInput" type="number" min="0" step="1" value="2000" />
                 <div class="meta" id="hourlyBaseText"></div>
             </div>
@@ -111,7 +111,7 @@
             const ratio = Math.max(0, Number(DATA.ratio_percent)) / 100;
 
             document.getElementById('hourlyBaseText').textContent =
-                `100% aránynál óránkénti bruttó: ${formatHUF(hourlyBase)} HUF`;
+                `100% kihasználtságnál óránkénti bruttó: ${formatHUF(hourlyBase)} HUF`;
 
             const weeklyByYear = new Map();
             for (const row of DATA.weekly) {
