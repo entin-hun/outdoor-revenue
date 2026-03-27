@@ -21,13 +21,18 @@
         h1 { margin: 0 0 10px; font-size: 28px; letter-spacing: 0.2px; }
         p { margin: 0; color: var(--muted); }
         .controls { margin: 14px 0 18px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-        .method { margin-top: 12px; margin-bottom: 14px; padding: 12px; background: #f8fbff; border: 1px solid var(--border); border-radius: 10px; }
-        .method h2 { margin: 0 0 8px; font-size: 18px; }
+        .method { margin-top: 12px; margin-bottom: 14px; padding: 14px 16px; background: #f8fbff; border: 1px solid var(--border); border-radius: 10px; }
+        .method h2 { margin: 0 0 10px; font-size: 18px; }
         .method p { margin: 0 0 8px; }
-        .method ul { margin: 0; padding-left: 18px; color: var(--text); }
-        .method li { margin-bottom: 6px; }
+        .method ul { margin: 4px 0 6px; padding-left: 20px; color: var(--text); }
+        .method li { margin-bottom: 5px; }
         .method a { color: #005f73; text-decoration: none; }
         .method a:hover { text-decoration: underline; }
+        .method details { margin: 6px 0; }
+        .method details summary { cursor: pointer; font-weight: 600; padding: 4px 0; color: var(--text); list-style: none; }
+        .method details summary::before { content: '▶ '; font-size: 11px; color: #005f73; }
+        .method details[open] summary::before { content: '▼ '; }
+        .formula { text-align: center; font-family: monospace; font-size: 14px; background: #eef4fb; padding: 8px 12px; border-radius: 6px; margin: 8px 0; color: var(--text); }
         label { font-weight: 600; }
         input[type=number] { width: 120px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 16px; }
         .meta { color: var(--muted); font-size: 14px; }
@@ -46,26 +51,56 @@
             <p>Az elmúlt 2 éves időjárási adatok alapján.</p>
             <div class="method">
                 <h2>Módszertan és adatforrások</h2>
-                <p>
-                    A becslés órás időjárási és naptári adatokból készül. Minden órára egy kapacitásarányt számolunk
-                    (0 és 1 között), majd ezt szorozzuk az alap órás bruttó bevétellel.
-                    A kapacitásarány elemei: naptár (hétköznap/hétvége/ünnepnap + nyitvatartás),
-                    hőmérséklet, csapadék és légnyomás-front hatás.
-                </p>
+                <p>A becslés óránkénti időjárási és naptári adatokon alapul. Minden nyitvatartási órára négy független szorzótag szorzataként számolunk <strong>kapacitásarányt</strong> (0–1), mellyel az alap óradíjat megszorozzuk:</p>
+                <div class="formula">Bevétel = Alap óradíj &times; M<sub>naptár</sub> &times; M<sub>hőmérséklet</sub> &times; M<sub>csapadék</sub> &times; M<sub>front</sub></div>
+                <details>
+                    <summary>1. M<sub>naptár</sub> &mdash; Nyitvatartási és naptári szorzó</summary>
+                    <ul>
+                        <li>Hétvégén (szombat–vasárnap) és <a href="https://www.government.hu/en/news/hungary-s-public-holidays" target="_blank" rel="noopener noreferrer">magyar ünnepnapokon</a>: nyitva <strong>10:00–18:00</strong>, szorzó = <strong>1,0</strong></li>
+                        <li>Munkanapokon (hétfő–péntek): nyitva <strong>12:00–20:00</strong>
+                            <ul>
+                                <li>12:00–15:59 &rarr; szorzó = <strong>0,2</strong> (alacsony déli forgalom)</li>
+                                <li>16:00–19:59 &rarr; szorzó = <strong>0,6</strong> (délutáni csúcsforgalom)</li>
+                            </ul>
+                        </li>
+                        <li>Nyitvatartáson kívüli órákon: szorzó = <strong>0</strong></li>
+                    </ul>
+                </details>
+                <details>
+                    <summary>2. M<sub>hőmérséklet</sub> &mdash; Hőmérsékleti szorzó</summary>
+                    <ul>
+                        <li>21–25 °C: <strong>1,0</strong> &mdash; optimális szabadtéri közérzet</li>
+                        <li>16–21 °C: lineárisan nő 0-ról 1-re &mdash; hűvös, de vállalható</li>
+                        <li>25–30 °C: lineárisan csökken 1-ről 0-ra &mdash; hőség-határ</li>
+                        <li>16 °C alatt vagy 30 °C felett: <strong>0</strong> &mdash; nincs számított bevétel</li>
+                    </ul>
+                </details>
+                <details>
+                    <summary>3. M<sub>csapadék</sub> &mdash; Csapadék szorzó</summary>
+                    <ul>
+                        <li>0 mm/óra (száraz): <strong>1,0</strong></li>
+                        <li>0–1 mm/óra (szitálás, permet): <strong>0,5</strong></li>
+                        <li>&gt;1 mm/óra (eső): <strong>0,1</strong> &mdash; drasztikus forgalomcsökkenés</li>
+                    </ul>
+                </details>
+                <details>
+                    <summary>4. M<sub>front</sub> &mdash; Légnyomásfront szorzó</summary>
+                    <ul>
+                        <li>Ha az előző 3 óra légnyomásváltozása <strong>|&Delta;P| &ge; 3 hPa</strong>: szorzó = <strong>0,75</strong><br><small>Front átvonulása fejfájást, fáradtságot okoz &mdash; mérhető vendégforgalom-csökkenés.</small></li>
+                        <li>Egyéb esetben: szorzó = <strong>1,0</strong></li>
+                    </ul>
+                </details>
+                <p style="margin-top:12px;"><strong>Adatforrások (ellenőrizhető):</strong></p>
                 <ul>
                     <li>
-                        Időjárás (órás archív):
-                        <a href="https://archive-api.open-meteo.com/v1/archive" target="_blank" rel="noopener noreferrer">Open-Meteo Archive API</a>
-                        (paraméterek: <code>temperature_2m</code>, <code>precipitation</code>, <code>surface_pressure</code>).
+                        Órás időjárási archív (hőmérséklet, csapadék, légnyomás) &mdash;
+                        <a href="https://open-meteo.com/en/docs/historical-weather-api" target="_blank" rel="noopener noreferrer">Open-Meteo Historical Weather API</a>
+                        &middot; <a href="https://archive-api.open-meteo.com/v1/archive?latitude=47.4991&longitude=18.9177&start_date=2024-06-01&end_date=2024-06-03&hourly=temperature_2m,precipitation,surface_pressure&timezone=Europe%2FBudapest" target="_blank" rel="noopener noreferrer">Élő API példa (2024. június)</a>
                     </li>
                     <li>
-                        Open-Meteo dokumentáció:
-                        <a href="https://open-meteo.com/en/docs/historical-weather-api" target="_blank" rel="noopener noreferrer">Historical Weather API docs</a>.
-                    </li>
-                    <li>
-                        Magyar ünnepnapok:
-                        <a href="https://pypi.org/project/holidays/" target="_blank" rel="noopener noreferrer">python-holidays csomag</a>
-                        (HU országkóddal).
+                        Magyar ünnepnapok &mdash;
+                        <a href="https://pypi.org/project/holidays/" target="_blank" rel="noopener noreferrer">python-holidays könyvtár</a>
+                        (forrás: Magyar Közlöny)
                     </li>
                 </ul>
             </div>

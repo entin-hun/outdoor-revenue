@@ -266,13 +266,18 @@ def create_dashboard_html(
         h1 {{ margin: 0 0 10px; font-size: 28px; letter-spacing: 0.2px; }}
         p {{ margin: 0; color: var(--muted); }}
         .controls {{ margin: 14px 0 18px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }}
-        .method {{ margin-top: 12px; margin-bottom: 14px; padding: 12px; background: #f8fbff; border: 1px solid var(--border); border-radius: 10px; }}
-        .method h2 {{ margin: 0 0 8px; font-size: 18px; }}
+        .method {{ margin-top: 12px; margin-bottom: 14px; padding: 14px 16px; background: #f8fbff; border: 1px solid var(--border); border-radius: 10px; }}
+        .method h2 {{ margin: 0 0 10px; font-size: 18px; }}
         .method p {{ margin: 0 0 8px; }}
-        .method ul {{ margin: 0; padding-left: 18px; color: var(--text); }}
-        .method li {{ margin-bottom: 6px; }}
+        .method ul {{ margin: 4px 0 6px; padding-left: 20px; color: var(--text); }}
+        .method li {{ margin-bottom: 5px; }}
         .method a {{ color: #005f73; text-decoration: none; }}
         .method a:hover {{ text-decoration: underline; }}
+        .method details {{ margin: 6px 0; }}
+        .method details summary {{ cursor: pointer; font-weight: 600; padding: 4px 0; color: var(--text); list-style: none; }}
+        .method details summary::before {{ content: '▶ '; font-size: 11px; color: #005f73; }}
+        .method details[open] summary::before {{ content: '▼ '; }}
+        .formula {{ text-align: center; font-family: monospace; font-size: 14px; background: #eef4fb; padding: 8px 12px; border-radius: 6px; margin: 8px 0; color: var(--text); }}
         label {{ font-weight: 600; }}
         input[type=number] {{ width: 120px; padding: 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 16px; }}
         .meta {{ color: var(--muted); font-size: 14px; }}
